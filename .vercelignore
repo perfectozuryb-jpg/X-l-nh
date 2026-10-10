@@ -1,0 +1,14 @@
+# Vercel Deployment Ignore
+train/
+test/
+test_cleaned/
+venv/
+scratch/
+*.exe
+*.zip
+*.docx
+*.pdf
+*.ipynb
+temp_*.txt
+*.pyc
+__pycache__/

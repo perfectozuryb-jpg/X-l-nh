@@ -1,0 +1,29 @@
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Datasets and large directories (kept in local backup)
+train/
+test/
+test_cleaned/
+scratch/
+.ipynb_checkpoints/
+
+# Binary installers and archives
+*.exe
+*.zip
+*.tar.gz
+
+# Office & temporary files
+*.docx
+*.pdf
+temp_*.txt
+temp_*.py
+update_*.py
