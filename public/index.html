@@ -348,6 +348,8 @@
     </div>
   </div>
 
+  <!-- Thư viện Tesseract.js chạy OCR trực tiếp trên trình duyệt -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script>
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
@@ -390,7 +392,7 @@
 
     function handleFileSelect(file) {
       if (!file.type.startsWith('image/')) {
-        alert('Vui lòng chọn file hình ảnh hợp lệ!');
+        alert('Vui lòng chọn file hình ảnh hợp lệ (PNG, JPG, JPEG)!');
         return;
       }
       currentFile = file;
@@ -403,11 +405,11 @@
 
       submitBtn.disabled = true;
       btnSpinner.style.display = 'block';
-      btnText.innerText = 'Đang xử lý thuật toán...';
+      btnText.innerText = 'Đang lọc sạch tài liệu...';
 
       const formData = new FormData();
       formData.append('file', currentFile);
-      formData.append('run_ocr', ocrToggle.checked);
+      formData.append('run_ocr', false);
 
       try {
         const res = await fetch('/api/denoise', {
@@ -415,34 +417,62 @@
           body: formData
         });
 
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Máy chủ trả về mã ${res.status}: ${errText.slice(0, 150)}`);
+        }
+
         const data = await res.json();
         if (!data.success) {
           alert('Lỗi: ' + (data.error || 'Xử lý thất bại'));
           return;
         }
 
-        // Render results
+        // Hiển thị ảnh kết quả lập tức
         rawImage.src = data.raw_image;
         cleanImage.src = data.clean_image;
         rawInfo.innerText = `${data.width} × ${data.height} px`;
         downloadLink.href = data.clean_image;
         downloadLink.download = `clean_${data.filename}`;
 
-        // Render OCR
-        if (data.ocr_result && data.ocr_result.length > 0) {
+        resultSection.style.display = 'flex';
+        resultSection.scrollIntoView({ behavior: 'smooth' });
+
+        // Chạy OCR nếu người dùng bật checkbox
+        if (ocrToggle.checked) {
+          btnText.innerText = 'Đang trích xuất chữ OCR...';
           ocrBox.style.display = 'flex';
-          ocrLines.innerHTML = data.ocr_result.map(line => `
-            <div class="ocr-line">
-              <span>${line.text}</span>
-              <span class="ocr-conf">${Math.round(line.confidence * 100)}%</span>
-            </div>
-          `).join('');
+          ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">⏳ Đang phân tích ký tự bằng OCR...</div>';
+
+          try {
+            const worker = await Tesseract.createWorker('eng');
+            const ret = await worker.recognize(data.clean_image);
+            await worker.terminate();
+
+            const lines = ret.data.lines
+              .filter(l => l.text.trim().length > 0)
+              .map(l => ({
+                text: l.text.trim(),
+                confidence: Math.round(l.confidence)
+              }));
+
+            if (lines.length > 0) {
+              ocrLines.innerHTML = lines.map(line => `
+                <div class="ocr-line">
+                  <span>${line.text}</span>
+                  <span class="ocr-conf">${line.confidence}%</span>
+                </div>
+              `).join('');
+            } else {
+              ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">Không tìm thấy ký tự văn bản rõ ràng.</div>';
+            }
+          } catch (ocrErr) {
+            console.warn('OCR Client error:', ocrErr);
+            ocrLines.innerHTML = `<div style="color: #f87171; padding: 10px;">OCR không khả dụng: ${ocrErr.message}</div>`;
+          }
         } else {
           ocrBox.style.display = 'none';
         }
-
-        resultSection.style.display = 'flex';
-        resultSection.scrollIntoView({ behavior: 'smooth' });
 
       } catch (err) {
         alert('Lỗi kết nối tới máy chủ: ' + err.message);
@@ -453,5 +483,6 @@
       }
     });
   </script>
+
 </body>
 </html>
