@@ -59,13 +59,32 @@ def process_pipeline_with_steps(gray):
         bg_arr = bg.astype(float) + 1e-5
         div = np.clip((gray.astype(float) / bg_arr) * 255.0, 0, 255).astype(np.uint8)
 
-    # Bước 4: Tăng tương phản phi tuyến
-    v = np.clip(div.astype(float) / 225.0, 0.0, 1.0)
-    contrast = np.clip(np.power(v, 1.4) * 255.0, 0, 255).astype(np.uint8)
+    # Bước 4: Tăng tương phản phi tuyến nét chữ với ngưỡng giấy chặt chẽ (th = 212, gamma = 1.6)
+    th_paper = 212
+    v = np.clip(div.astype(float) / float(th_paper), 0.0, 1.0)
+    contrast = np.clip(np.power(v, 1.6) * 255.0, 0, 255).astype(np.uint8)
+    contrast[div >= th_paper] = 255
 
-    # Bước 5: Ép nền trắng 100%
+    # Bước 5: Triệt tiêu vết ố loang & nếp gấp bằng hình thái học và ép nền trắng 100%
     clean = contrast.copy()
-    clean[div >= 225] = 255
+    if HAS_CV2:
+        # Lọc hình thái học Black-Hat để phát hiện tương phản nét mực thực sự
+        se = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+        bh = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, se)
+        stain_haze = (div >= 170) & (bh < 18)
+        clean[stain_haze] = 255
+
+        # Lọc thành phần liên thông: loại bỏ hạt bụi đơn lẻ (speckles) và vệt rác ngoài lề
+        mask_ink = (clean < 240).astype(np.uint8)
+        num, labels, stats, _ = cv2.connectedComponentsWithStats(mask_ink, 8)
+        for i in range(1, num):
+            x, y, comp_w, comp_h, area = stats[i]
+            if area <= 2:
+                clean[labels == i] = 255
+            elif (comp_h > 55 or comp_w > 70) and np.min(gray[labels == i]) > 70:
+                clean[labels == i] = 255
+    else:
+        clean[div >= th_paper] = 255
 
     steps_data = [
         {
@@ -94,18 +113,18 @@ def process_pipeline_with_steps(gray):
         },
         {
             "step_number": 4,
-            "title": "Tăng Tương Phản Phi Tuyến Nét Chữ (Gamma = 1.4)",
-            "algorithm": "I_crisp = ((I_div / 225) ^ 1.4) * 255",
-            "how": "Áp dụng hàm biến đổi phi tuyến với số mũ gamma = 1.4 lên dải giá trị chuẩn hóa của ảnh.",
+            "title": "Tăng Tương Phản Phi Tuyến Nét Chữ (Gamma = 1.6 & Cutoff = 212)",
+            "algorithm": "I_crisp = ((I_div / 212) ^ 1.6) * 255",
+            "how": "Áp dụng hàm biến đổi phi tuyến với số mũ gamma = 1.6 lên dải giá trị chuẩn hóa của ảnh và cắt ngưỡng giấy ở 212.",
             "why": "Sau phép chia nền, nét chữ có thể bị hơi xám hoặc mờ nhạt. Thay vì phân ngưỡng nhị phân cứng (Hard Thresholding) gây răng cưa đứt nét, hàm phi tuyến kéo hạt mực in về sắc đen sâu (0 - 30), đồng thời giữ lại hiệu ứng khử răng cưa (Antialiasing) ở đường viền ký tự giúp chữ tròn trịa, sắc nét.",
             "image": f"data:image/png;base64,{encode_img_b64(contrast)}"
         },
         {
             "step_number": 5,
-            "title": "Triệt Tiêu Vết Ố & Ép Nền Trắng 100% (Paper Clamping)",
-            "algorithm": "I_clean[I_div >= 225] = 255",
-            "how": "Tất cả điểm ảnh có giá trị chuẩn hóa từ 225 trở lên (thuộc nền giấy, vi vết ố nhạt hoặc nếp gấp đã mờ) được ép dứt điểm về 255.",
-            "why": "Đảm bảo nền giấy đạt độ trắng tinh khiết tuyệt đối 100% (255), triệt tiêu sạch sẽ các đốm hạt lấm chấm còn sót lại, giúp ảnh trong trẻo như tài liệu mới in và tối ưu hóa tối đa cho công cụ nhận dạng chữ OCR.",
+            "title": "Lọc Hình Thái Học & Ép Nền Trắng 100% (Morphological Cleanup & 100% Clamping)",
+            "algorithm": "Black-Hat Filter (5×5) + Connected Components + Paper Clamping",
+            "how": "Sử dụng bộ lọc hình thái học Black-Hat phát hiện tương phản nét mực thực sự, kết hợp phân tích thành phần liên thông (Connected Components) dọn dẹp các đốm hạt đơn lẻ và vệt ố loang ngoài lề, ép toàn bộ nền giấy về 255.",
+            "why": "Đảm bảo nền giấy đạt độ trắng tinh khiết tuyệt đối 100% (255), triệt tiêu sạch sẽ các màng sương mờ của vết ố cà phê và nếp gấp mờ còn sót lại, giúp ảnh trong trẻo như tài liệu mới in và tối ưu hóa tối đa cho công cụ nhận dạng chữ OCR.",
             "image": f"data:image/png;base64,{encode_img_b64(clean)}"
         }
     ]
