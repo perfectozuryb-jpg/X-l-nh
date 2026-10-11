@@ -6,7 +6,7 @@
   <title>Denoising Dirty Documents – Nhóm 3 (XLAS)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #090d16;
@@ -79,7 +79,7 @@
     p.subtitle {
       color: var(--text-muted);
       font-size: 1.05rem;
-      max-width: 650px;
+      max-width: 720px;
       line-height: 1.6;
     }
 
@@ -163,6 +163,7 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      font-family: inherit;
     }
 
     .btn:hover {
@@ -179,6 +180,53 @@
     /* Result Section */
     .result-section {
       display: none;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Tabs */
+    .tabs-container {
+      display: flex;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 18px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: inherit;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .tab-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+      background: rgba(59, 130, 246, 0.2);
+      color: #ffffff;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+    }
+
+    /* Tab Content Panes */
+    .tab-pane {
+      display: flex;
       flex-direction: column;
       gap: 24px;
     }
@@ -257,6 +305,140 @@
       font-weight: 600;
     }
 
+    /* Steps Cards */
+    .steps-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .step-card {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      transition: all 0.25s ease;
+    }
+
+    .step-card:hover {
+      border-color: rgba(59, 130, 246, 0.35);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .step-badge {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 4px 12px;
+      border-radius: 9999px;
+    }
+
+    .step-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .step-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .step-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .step-img-box {
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .step-img-box img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    .step-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .formula-box {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88rem;
+      color: #93c5fd;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .formula-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .info-block {
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 3px solid;
+      padding: 12px 16px;
+      border-radius: 0 10px 10px 0;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .info-block.how {
+      border-color: #3b82f6;
+    }
+
+    .info-block.why {
+      border-color: #10b981;
+    }
+
+    .info-label {
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .info-block.how .info-label {
+      color: #60a5fa;
+    }
+
+    .info-block.why .info-label {
+      color: #34d399;
+    }
+
     /* Spinner */
     .spinner {
       display: none;
@@ -281,8 +463,8 @@
       </div>
       <h1>Làm Sạch Tài Liệu & Triệt Tiêu Vết Ố</h1>
       <p class="subtitle">
-        Ứng dụng thuật toán Toán học Cổ điển (DIP): Background Division 71×71, Non-linear Contrast Transfer Curve 
-        và Multi-Observation Synthesis. Nền trắng 100%, nét chữ đậm đen sắc nét.
+        Quy trình xử lý ảnh số cổ điển (DIP) 5 bước: Ước lượng nền Gaussian thích ứng, Background Division, 
+        Đường cong tương phản phi tuyến và Clamping nền trắng 100%. Nét chữ đậm đen sắc nét, tối ưu cho OCR.
       </p>
     </header>
 
@@ -302,7 +484,7 @@
       <div class="controls">
         <label class="toggle-group">
           <input type="checkbox" id="ocrToggle" checked>
-          <span>Chạy nhận dạng ký tự OCR (RapidOCR)</span>
+          <span>Chạy nhận dạng ký tự OCR (Tesseract.js)</span>
         </label>
         <button class="btn" id="submitBtn" disabled>
           <div class="spinner" id="btnSpinner"></div>
@@ -313,36 +495,65 @@
 
     <!-- Result Card -->
     <div class="glass-card result-section" id="resultSection">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="font-size: 1.4rem; font-weight: 700;">Kết Quả Xử Lý Đối Chiếu</h2>
-        <a id="downloadLink" class="btn" style="background: var(--accent); text-decoration: none;" download="cleaned_document.png">
-          📥 Tải ảnh sạch về máy
-        </a>
+      <!-- Tabs Switcher -->
+      <div class="tabs-container">
+        <button class="tab-btn active" id="tabCompareBtn" onclick="switchTab('compare')">
+          <span>⚡</span> So Sánh Đối Chiếu
+        </button>
+        <button class="tab-btn" id="tabStepsBtn" onclick="switchTab('steps')">
+          <span>🔬</span> Chi Tiết Từng Bước Thuật Toán (5 Bước)
+        </button>
       </div>
 
-      <div class="comparison-grid">
-        <div class="img-box">
-          <div class="img-box-header">
-            <span>📷 Ảnh Gốc (Dirty Input)</span>
-            <span id="rawInfo" style="color: var(--text-muted);"></span>
-          </div>
-          <img id="rawImage" src="" alt="Ảnh gốc">
+      <!-- Tab 1: So sánh Before/After -->
+      <div class="tab-pane" id="comparePane">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <h2 style="font-size: 1.35rem; font-weight: 700;">Kết Quả Xử Lý Đối Chiếu</h2>
+          <a id="downloadLink" class="btn" style="background: var(--accent); text-decoration: none;" download="cleaned_document.png">
+            📥 Tải ảnh sạch về máy
+          </a>
         </div>
 
-        <div class="img-box">
-          <div class="img-box-header">
-            <span>✨ Ảnh Đã Làm Sạch (Spotless & Crisp)</span>
-            <span style="color: var(--accent);">Nền trắng 100%, nét chữ đậm rõ</span>
+        <div class="comparison-grid">
+          <div class="img-box">
+            <div class="img-box-header">
+              <span>📷 Ảnh Gốc (Dirty Input)</span>
+              <span id="rawInfo" style="color: var(--text-muted);"></span>
+            </div>
+            <img id="rawImage" src="" alt="Ảnh gốc">
           </div>
-          <img id="cleanImage" src="" alt="Ảnh sau xử lý">
+
+          <div class="img-box">
+            <div class="img-box-header">
+              <span>✨ Ảnh Đã Làm Sạch (Spotless & Crisp)</span>
+              <span style="color: var(--accent);">Nền trắng 100%, nét chữ đậm rõ</span>
+            </div>
+            <img id="cleanImage" src="" alt="Ảnh sau xử lý">
+          </div>
+        </div>
+
+        <!-- OCR Result -->
+        <div class="ocr-box" id="ocrBox">
+          <h3 style="font-size: 1.1rem; font-weight: 600;">🖹 Kết quả Nhận Dạng Văn Bản (OCR)</h3>
+          <div class="ocr-lines" id="ocrLines">
+            <!-- OCR items injected here -->
+          </div>
         </div>
       </div>
 
-      <!-- OCR Result -->
-      <div class="ocr-box" id="ocrBox">
-        <h3 style="font-size: 1.1rem; font-weight: 600;">🖹 Kết quả Nhận Dạng Văn Bản (OCR)</h3>
-        <div class="ocr-lines" id="ocrLines">
-          <!-- OCR items injected here -->
+      <!-- Tab 2: Chi tiết 5 bước thuật toán -->
+      <div class="tab-pane" id="stepsPane" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h2 style="font-size: 1.35rem; font-weight: 700;">Phân Rã 5 Bước Thuật Toán Xử Lý Ảnh Số (DIP)</h2>
+            <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 4px;">
+              Theo dõi chi tiết ảnh trung gian, phương pháp thực hiện và cơ sở lý thuyết khoa học tại mỗi giai đoạn.
+            </p>
+          </div>
+        </div>
+
+        <div class="steps-container" id="stepsContainer">
+          <!-- Step cards injected here dynamically -->
         </div>
       </div>
     </div>
@@ -365,7 +576,27 @@
     const ocrBox = document.getElementById('ocrBox');
     const ocrLines = document.getElementById('ocrLines');
 
+    const tabCompareBtn = document.getElementById('tabCompareBtn');
+    const tabStepsBtn = document.getElementById('tabStepsBtn');
+    const comparePane = document.getElementById('comparePane');
+    const stepsPane = document.getElementById('stepsPane');
+    const stepsContainer = document.getElementById('stepsContainer');
+
     let currentFile = null;
+
+    function switchTab(tab) {
+      if (tab === 'compare') {
+        tabCompareBtn.classList.add('active');
+        tabStepsBtn.classList.remove('active');
+        comparePane.style.display = 'flex';
+        stepsPane.style.display = 'none';
+      } else {
+        tabStepsBtn.classList.add('active');
+        tabCompareBtn.classList.remove('active');
+        stepsPane.style.display = 'flex';
+        comparePane.style.display = 'none';
+      }
+    }
 
     dropZone.addEventListener('click', () => fileInput.click());
 
@@ -429,24 +660,54 @@
           throw new Error(`Máy chủ trả về mã ${res.status}: ${errText.slice(0, 150)}`);
         }
 
-
         const data = await res.json();
         if (!data.success) {
           alert('Lỗi: ' + (data.error || 'Xử lý thất bại'));
           return;
         }
 
-        // Hiển thị ảnh kết quả lập tức
+        // 1. Hiển thị Tab Đối Chiếu
         rawImage.src = data.raw_image;
         cleanImage.src = data.clean_image;
         rawInfo.innerText = `${data.width} × ${data.height} px`;
         downloadLink.href = data.clean_image;
         downloadLink.download = `clean_${data.filename}`;
 
+        // 2. Render Chi Tiết Từng Bước Thuật Toán
+        if (data.steps && data.steps.length > 0) {
+          stepsContainer.innerHTML = data.steps.map(step => `
+            <div class="step-card">
+              <div class="step-header">
+                <span class="step-badge">BƯỚC ${step.step_number} / ${data.steps.length}</span>
+                <h3 class="step-title">${step.title}</h3>
+              </div>
+              <div class="step-grid">
+                <div class="step-img-box">
+                  <img src="${step.image}" alt="${step.title}">
+                </div>
+                <div class="step-meta">
+                  <div class="formula-box">
+                    <span class="formula-title">Thuật toán & Công thức:</span>
+                    <code>${step.algorithm}</code>
+                  </div>
+                  <div class="info-block how">
+                    <div class="info-label">📌 Cách thực hiện:</div>
+                    <p>${step.how}</p>
+                  </div>
+                  <div class="info-block why">
+                    <div class="info-label">💡 Tại sao làm như vậy? (Cơ sở khoa học):</div>
+                    <p>${step.why}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+
         resultSection.style.display = 'flex';
         resultSection.scrollIntoView({ behavior: 'smooth' });
 
-        // Chạy OCR nếu người dùng bật checkbox
+        // 3. Chạy OCR nếu bật
         if (ocrToggle.checked) {
           btnText.innerText = 'Đang trích xuất chữ OCR...';
           ocrBox.style.display = 'flex';
@@ -491,6 +752,5 @@
       }
     });
   </script>
-
 </body>
 </html>
