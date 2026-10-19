@@ -14,7 +14,12 @@ train/
 test/
 test_cleaned/
 scratch/
+steps_output/
 .ipynb_checkpoints/
+
+# Generated output images
+output_*.png
+stroke_restoration_proof.png
 
 # Binary installers and archives
 *.exe

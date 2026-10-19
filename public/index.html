@@ -10,11 +10,13 @@
   <style>
     :root {
       --bg: #090d16;
-      --card-bg: rgba(18, 24, 38, 0.7);
+      --card-bg: rgba(18, 24, 38, 0.75);
       --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(59, 130, 246, 0.4);
       --primary: #3b82f6;
       --primary-glow: rgba(59, 130, 246, 0.35);
       --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.3);
       --text: #f1f5f9;
       --text-muted: #94a3b8;
     }
@@ -27,7 +29,7 @@
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: radial-gradient(circle at 50% 0%, #172554 0%, var(--bg) 60%);
+      background: radial-gradient(circle at 50% 0%, #1e293b 0%, var(--bg) 65%);
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -38,7 +40,7 @@
 
     .container {
       width: 100%;
-      max-width: 1100px;
+      max-width: 1150px;
       display: flex;
       flex-direction: column;
       gap: 32px;
@@ -58,32 +60,33 @@
       align-items: center;
       gap: 6px;
       background: rgba(59, 130, 246, 0.15);
-      border: 1px solid rgba(59, 130, 246, 0.3);
       color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
       padding: 6px 14px;
       border-radius: 9999px;
       font-size: 0.85rem;
       font-weight: 600;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.04em;
     }
 
     h1 {
-      font-size: 2.5rem;
+      font-size: 2.6rem;
       font-weight: 800;
-      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #93c5fd 100%);
+      letter-spacing: -0.025em;
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      letter-spacing: -0.02em;
+      line-height: 1.2;
     }
 
     p.subtitle {
       color: var(--text-muted);
       font-size: 1.05rem;
-      max-width: 720px;
+      max-width: 820px;
       line-height: 1.6;
     }
 
-    /* Upload Card */
+    /* Glass Card */
     .glass-card {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
@@ -91,45 +94,73 @@
       border: 1px solid var(--border);
       border-radius: 20px;
       padding: 32px;
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+      transition: all 0.3s ease;
     }
 
+    /* Drop Zone */
     .drop-zone {
       border: 2px dashed rgba(255, 255, 255, 0.15);
       border-radius: 16px;
-      padding: 40px 20px;
+      padding: 36px 20px;
       text-align: center;
       cursor: pointer;
       transition: all 0.25s ease;
+      background: rgba(0, 0, 0, 0.25);
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 12px;
-      background: rgba(255, 255, 255, 0.02);
     }
 
     .drop-zone:hover, .drop-zone.dragover {
       border-color: var(--primary);
-      background: rgba(59, 130, 246, 0.05);
+      background: rgba(59, 130, 246, 0.08);
       box-shadow: 0 0 25px var(--primary-glow);
     }
 
     .drop-zone svg {
-      width: 48px;
-      height: 48px;
-      stroke: var(--primary);
+      width: 44px;
+      height: 44px;
+      color: #60a5fa;
+      stroke-width: 1.6;
     }
 
     .file-input {
       display: none;
     }
 
-    /* Actions */
+    .sample-presets {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .sample-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: #93c5fd;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .sample-btn:hover {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: var(--primary);
+      color: #ffffff;
+    }
+
     .controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 20px;
+      margin-top: 24px;
       flex-wrap: wrap;
       gap: 16px;
     }
@@ -139,14 +170,16 @@
       align-items: center;
       gap: 10px;
       font-size: 0.95rem;
+      font-weight: 500;
       color: var(--text-muted);
       cursor: pointer;
     }
 
-    .toggle-group input {
-      accent-color: var(--primary);
+    .toggle-group input[type="checkbox"] {
       width: 18px;
       height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
     }
 
     .btn {
@@ -229,6 +262,41 @@
       display: flex;
       flex-direction: column;
       gap: 24px;
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .metric-card {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .metric-title {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .metric-desc {
+      font-size: 0.8rem;
+      color: #60a5fa;
     }
 
     .comparison-grid {
@@ -399,54 +467,45 @@
     }
 
     .formula-title {
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
       color: var(--text-muted);
-      font-weight: 700;
+      letter-spacing: 0.05em;
     }
 
     .info-block {
-      background: rgba(255, 255, 255, 0.03);
-      border-left: 3px solid;
-      padding: 12px 16px;
-      border-radius: 0 10px 10px 0;
+      background: rgba(255, 255, 255, 0.02);
+      border-left: 3px solid var(--primary);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
       font-size: 0.92rem;
-      line-height: 1.6;
-    }
-
-    .info-block.how {
-      border-color: #3b82f6;
+      line-height: 1.5;
     }
 
     .info-block.why {
-      border-color: #10b981;
+      border-left-color: var(--accent);
     }
 
     .info-label {
-      font-weight: 700;
+      font-weight: 600;
       margin-bottom: 4px;
+      color: #e2e8f0;
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    .info-block.how .info-label {
-      color: #60a5fa;
+    .info-block p {
+      color: var(--text-muted);
     }
 
-    .info-block.why .info-label {
-      color: #34d399;
-    }
-
-    /* Spinner */
     .spinner {
-      display: none;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
       border-top-color: white;
+      border-radius: 50%;
+      display: none;
       animation: spin 0.8s linear infinite;
     }
 
@@ -459,12 +518,13 @@
   <div class="container">
     <header>
       <div class="badge">
-        Đề tài Môn Xử lý Ảnh Số – Nhóm 3
+        Đề tài Môn Xử lý Ảnh Số (DIP) – Nhóm 3
       </div>
       <h1>Làm Sạch Tài Liệu & Triệt Tiêu Vết Ố</h1>
       <p class="subtitle">
-        Quy trình xử lý ảnh số cổ điển (DIP) 5 bước: Ước lượng nền Gaussian thích ứng, Background Division, 
-        Đường cong tương phản phi tuyến và Clamping nền trắng 100%. Nét chữ đậm đen sắc nét, tối ưu cho OCR.
+        Quy trình Xử lý ảnh số toàn diện <strong>9 bước</strong>: Ước lượng trường nền Gauss thích ứng, Background Division, 
+        Phân ngưỡng tự động Otsu, Tương phản Gamma 1.4, Hình thái học Black-Hat (5×5), Triệt tiêu quầng ố, Clamping nền trắng 100% 
+        và Lọc hạt bụi liên thông. Nét chữ đậm đen sắc nét, tối ưu hóa cho OCR.
       </p>
     </header>
 
@@ -475,16 +535,21 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.5V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
         </svg>
         <div>
-          <h3 style="font-size: 1.1rem; margin-bottom: 4px;">Kéo & Thả ảnh tài liệu vào đây</h3>
+          <h3 style="font-size: 1.15rem; margin-bottom: 4px;">Kéo & Thả ảnh tài liệu vào đây hoặc Click để chọn file</h3>
           <p style="color: var(--text-muted); font-size: 0.9rem;">Hỗ trợ định dạng PNG, JPG, JPEG (Ảnh tài liệu bị ố cà phê, nếp gấp, chữ mờ)</p>
         </div>
         <input type="file" id="fileInput" class="file-input" accept="image/*">
       </div>
 
+      <div class="sample-presets">
+        <span style="font-size: 0.85rem; color: var(--text-muted);">Thử nhanh ảnh mẫu có sẵn:</span>
+        <button class="sample-btn" onclick="loadSamplePreset('samples/sample_dirty.png')">📄 Ảnh mẫu Kaggle (Vết ố loang đậm & nếp gấp)</button>
+      </div>
+
       <div class="controls">
         <label class="toggle-group">
           <input type="checkbox" id="ocrToggle" checked>
-          <span>Chạy nhận dạng ký tự OCR (Tesseract.js)</span>
+          <span>Bật nhận dạng ký tự OCR (RapidOCR / Tesseract)</span>
         </label>
         <button class="btn" id="submitBtn" disabled>
           <div class="spinner" id="btnSpinner"></div>
@@ -498,10 +563,10 @@
       <!-- Tabs Switcher -->
       <div class="tabs-container">
         <button class="tab-btn active" id="tabCompareBtn" onclick="switchTab('compare')">
-          <span>⚡</span> So Sánh Đối Chiếu
+          <span>⚡</span> So Sánh Đối Chiếu & Chỉ Số
         </button>
         <button class="tab-btn" id="tabStepsBtn" onclick="switchTab('steps')">
-          <span>🔬</span> Chi Tiết Từng Bước Thuật Toán (5 Bước)
+          <span>🔬</span> Chi Tiết Toàn Bộ 9 Bước Thuật Toán (DIP Process)
         </button>
       </div>
 
@@ -512,6 +577,30 @@
           <a id="downloadLink" class="btn" style="background: var(--accent); text-decoration: none;" download="cleaned_document.png">
             📥 Tải ảnh sạch về máy
           </a>
+        </div>
+
+        <!-- Metrics Dashboard -->
+        <div class="metrics-grid" id="metricsGrid">
+          <div class="metric-card">
+            <span class="metric-title">Nền Trắng Tuyệt Đối (255)</span>
+            <span class="metric-value" id="valWhiteRatio">--</span>
+            <span class="metric-desc">Triệt tiêu 100% vết ố loang</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Ngưỡng Tự Động Otsu</span>
+            <span class="metric-value" id="valOtsu">--</span>
+            <span class="metric-desc" id="valPaper">Ranh giới giấy: --</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Hạt Nhân Gauss Nền</span>
+            <span class="metric-value" id="valGauss">--</span>
+            <span class="metric-desc" id="valSigma">Độ mờ σ: --</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Thành Phần Liên Thông</span>
+            <span class="metric-value" id="valCC">--</span>
+            <span class="metric-desc">Hàn gắn các nét chữ đứt gãy</span>
+          </div>
         </div>
 
         <div class="comparison-grid">
@@ -525,8 +614,8 @@
 
           <div class="img-box">
             <div class="img-box-header">
-              <span>✨ Ảnh Đã Làm Sạch (Spotless & Crisp)</span>
-              <span style="color: var(--accent);">Nền trắng 100%, nét chữ đậm rõ</span>
+              <span>✨ Ảnh Đã Phục Hồi (Otsu + Black-Hat)</span>
+              <span style="color: var(--accent);">Nền trắng 100%, chữ đậm liền mạch</span>
             </div>
             <img id="cleanImage" src="" alt="Ảnh sau xử lý">
           </div>
@@ -534,33 +623,29 @@
 
         <!-- OCR Result -->
         <div class="ocr-box" id="ocrBox">
-          <h3 style="font-size: 1.1rem; font-weight: 600;">🖹 Kết quả Nhận Dạng Văn Bản (OCR)</h3>
+          <h3 style="font-size: 1.1rem; font-weight: 600;">🖹 Kết quả Nhận Dạng Văn Bản (OCR Trích Xuất)</h3>
           <div class="ocr-lines" id="ocrLines">
             <!-- OCR items injected here -->
           </div>
         </div>
       </div>
 
-      <!-- Tab 2: Chi tiết 5 bước thuật toán -->
+      <!-- Tab 2: Chi tiết 9 bước thuật toán -->
       <div class="tab-pane" id="stepsPane" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <h2 style="font-size: 1.35rem; font-weight: 700;">Phân Rã 5 Bước Thuật Toán Xử Lý Ảnh Số (DIP)</h2>
-            <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 4px;">
-              Theo dõi chi tiết ảnh trung gian, phương pháp thực hiện và cơ sở lý thuyết khoa học tại mỗi giai đoạn.
-            </p>
-          </div>
+        <div>
+          <h2 style="font-size: 1.35rem; font-weight: 700;">Phân Rã Toàn Diện 9 Bước Thuật Toán Xử Lý Ảnh Số (DIP)</h2>
+          <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 4px;">
+            Theo dõi ảnh kết quả trung gian, thuật toán thực hiện và cơ sở lý thuyết toán học tại từng giai đoạn cụ thể.
+          </p>
         </div>
 
         <div class="steps-container" id="stepsContainer">
-          <!-- Step cards injected here dynamically -->
+          <!-- 9 Step cards injected here dynamically -->
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Thư viện Tesseract.js chạy OCR trực tiếp trên trình duyệt -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script>
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
@@ -581,6 +666,13 @@
     const comparePane = document.getElementById('comparePane');
     const stepsPane = document.getElementById('stepsPane');
     const stepsContainer = document.getElementById('stepsContainer');
+
+    const valWhiteRatio = document.getElementById('valWhiteRatio');
+    const valOtsu = document.getElementById('valOtsu');
+    const valPaper = document.getElementById('valPaper');
+    const valGauss = document.getElementById('valGauss');
+    const valSigma = document.getElementById('valSigma');
+    const valCC = document.getElementById('valCC');
 
     let currentFile = null;
 
@@ -631,25 +723,38 @@
       btnText.innerText = `Làm sạch: ${file.name}`;
     }
 
+    async function loadSamplePreset(url) {
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error('Không thể tải ảnh mẫu: ' + url);
+        const blob = await resp.blob();
+        const file = new File([blob], "sample_dirty.png", { type: "image/png" });
+        handleFileSelect(file);
+        submitBtn.click();
+      } catch (e) {
+        alert("Lỗi tải ảnh mẫu: " + e.message);
+      }
+    }
+
     submitBtn.addEventListener('click', async () => {
       if (!currentFile) return;
 
       submitBtn.disabled = true;
       btnSpinner.style.display = 'block';
-      btnText.innerText = 'Đang lọc sạch tài liệu...';
+      btnText.innerText = 'Đang chạy toàn diện 9 bước DIP...';
 
       const formData = new FormData();
       formData.append('file', currentFile);
-      formData.append('run_ocr', false);
+      formData.append('run_ocr', ocrToggle.checked);
 
       try {
-        let res = await fetch('/denoise', {
+        let res = await fetch('/api/denoise', {
           method: 'POST',
           body: formData
         });
 
         if (res.status === 404) {
-          res = await fetch('/api/denoise', {
+          res = await fetch('/denoise', {
             method: 'POST',
             body: formData
           });
@@ -666,14 +771,24 @@
           return;
         }
 
-        // 1. Hiển thị Tab Đối Chiếu
+        // 1. Cập nhật Tab Đối Chiếu
         rawImage.src = data.raw_image;
         cleanImage.src = data.clean_image;
         rawInfo.innerText = `${data.width} × ${data.height} px`;
         downloadLink.href = data.clean_image;
         downloadLink.download = `clean_${data.filename}`;
 
-        // 2. Render Chi Tiết Từng Bước Thuật Toán
+        // Cập nhật Metrics
+        if (data.metrics) {
+          valWhiteRatio.innerText = `${data.metrics.white_ratio}%`;
+          valOtsu.innerText = `T = ${data.metrics.th_otsu}`;
+          valPaper.innerText = `Ranh giới giấy: ${data.metrics.th_paper}`;
+          valGauss.innerText = `${data.metrics.k_gauss}×${data.metrics.k_gauss}`;
+          valSigma.innerText = `Độ mờ σ = ${data.metrics.sigma_gauss}`;
+          valCC.innerText = `${data.metrics.connected_components_raw} ➔ ${data.metrics.connected_components_clean}`;
+        }
+
+        // 2. Render Đầy Đủ 9 Bước Thuật Toán
         if (data.steps && data.steps.length > 0) {
           stepsContainer.innerHTML = data.steps.map(step => `
             <div class="step-card">
@@ -687,7 +802,7 @@
                 </div>
                 <div class="step-meta">
                   <div class="formula-box">
-                    <span class="formula-title">Thuật toán & Công thức:</span>
+                    <span class="formula-title">Thuật toán & Công thức toán học:</span>
                     <code>${step.algorithm}</code>
                   </div>
                   <div class="info-block how">
@@ -695,7 +810,7 @@
                     <p>${step.how}</p>
                   </div>
                   <div class="info-block why">
-                    <div class="info-label">💡 Tại sao làm như vậy? (Cơ sở khoa học):</div>
+                    <div class="info-label">💡 Tại sao làm như vậy? (Cơ sở khoa học DIP):</div>
                     <p>${step.why}</p>
                   </div>
                 </div>
@@ -707,37 +822,19 @@
         resultSection.style.display = 'flex';
         resultSection.scrollIntoView({ behavior: 'smooth' });
 
-        // 3. Chạy OCR nếu bật
+        // 3. Render Kết quả OCR
         if (ocrToggle.checked) {
-          btnText.innerText = 'Đang trích xuất chữ OCR...';
           ocrBox.style.display = 'flex';
-          ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">⏳ Đang phân tích ký tự bằng OCR...</div>';
-
-          try {
-            const worker = await Tesseract.createWorker('eng');
-            const ret = await worker.recognize(data.clean_image);
-            await worker.terminate();
-
-            const lines = ret.data.lines
-              .filter(l => l.text.trim().length > 0)
-              .map(l => ({
-                text: l.text.trim(),
-                confidence: Math.round(l.confidence)
-              }));
-
-            if (lines.length > 0) {
-              ocrLines.innerHTML = lines.map(line => `
-                <div class="ocr-line">
-                  <span>${line.text}</span>
-                  <span class="ocr-conf">${line.confidence}%</span>
-                </div>
-              `).join('');
-            } else {
-              ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">Không tìm thấy ký tự văn bản rõ ràng.</div>';
-            }
-          } catch (ocrErr) {
-            console.warn('OCR Client error:', ocrErr);
-            ocrLines.innerHTML = `<div style="color: #f87171; padding: 10px;">OCR không khả dụng: ${ocrErr.message}</div>`;
+          const ocrLinesData = data.ocr_clean || [];
+          if (ocrLinesData.length > 0) {
+            ocrLines.innerHTML = ocrLinesData.map(line => `
+              <div class="ocr-line">
+                <span>${line.text}</span>
+                <span class="ocr-conf">${line.confidence}%</span>
+              </div>
+            `).join('');
+          } else {
+            ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">Không tìm thấy ký tự văn bản hoặc máy chủ chưa cài thư viện OCR.</div>';
           }
         } else {
           ocrBox.style.display = 'none';
