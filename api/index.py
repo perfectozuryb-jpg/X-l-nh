@@ -53,27 +53,42 @@ def encode_img_b64(arr):
         return base64.b64encode(buf.getvalue()).decode('utf-8')
 
 def run_ocr_text(img_gray):
-    """Bóc tách văn bản qua RapidOCR."""
+    """Bóc tách văn bản qua RapidOCR (với fallback Tesseract nếu có)."""
     engine = get_ocr()
-    if engine is None:
-        return []
+    if engine is not None:
+        try:
+            res, _ = engine(img_gray)
+            if res:
+                lines = []
+                for bbox, text, score in res:
+                    try:
+                        conf = float(score)
+                    except Exception:
+                        conf = 0.90
+                    lines.append({
+                        "text": text.strip(),
+                        "confidence": round(conf * 100)
+                    })
+                if lines:
+                    return lines
+        except Exception as e:
+            print("RapidOCR error:", e)
+
+    # Thử fallback pytesseract nếu đã cài đặt
     try:
-        res, _ = engine(img_gray)
-        if not res:
-            return []
-        lines = []
-        for bbox, text, score in res:
-            try:
-                conf = float(score)
-            except Exception:
-                conf = 0.90
-            lines.append({
-                "text": text.strip(),
-                "confidence": round(conf * 100)
-            })
-        return lines
+        import pytesseract
+        for p in [r"C:\Program Files\Tesseract-OCR\tesseract.exe", r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe"]:
+            if os.path.exists(p):
+                pytesseract.pytesseract.tesseract_cmd = p
+                break
+        txt = pytesseract.image_to_string(img_gray)
+        lines = [{"text": l.strip(), "confidence": 85} for l in txt.split('\n') if l.strip()]
+        if lines:
+            return lines
     except Exception:
-        return []
+        pass
+
+    return []
 
 def process_pipeline_with_all_steps(gray):
     """
@@ -147,10 +162,8 @@ def process_pipeline_with_all_steps(gray):
         mask_ink = (clean < 240).astype(np.uint8)
         num, labels, stats, _ = cv2.connectedComponentsWithStats(mask_ink, 8)
         for i in range(1, num):
-            x, y, comp_w, comp_h, area = stats[i]
+            area = stats[i, cv2.CC_STAT_AREA]
             if area <= 2:
-                clean[labels == i] = 255
-            elif (comp_h > 55 or comp_w > 70) and np.min(gray[labels == i]) > 70:
                 clean[labels == i] = 255
 
     # Đếm thành phần liên thông để chứng minh phục hồi nét đứt

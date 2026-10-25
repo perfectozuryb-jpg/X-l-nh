@@ -99,11 +99,7 @@ def restore_crisp_document(gray, return_details=False):
     num, labels, stats, _ = cv2.connectedComponentsWithStats(mask_ink, 8)
     for i in range(1, num):
         area = stats[i, cv2.CC_STAT_AREA]
-        comp_w = stats[i, cv2.CC_STAT_WIDTH]
-        comp_h = stats[i, cv2.CC_STAT_HEIGHT]
         if area <= 2:
-            clean[labels == i] = 255
-        elif (comp_h > 55 or comp_w > 70) and np.min(gray[labels == i]) > 70:
             clean[labels == i] = 255
 
     if return_details:

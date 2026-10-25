@@ -549,7 +549,7 @@
       <div class="controls">
         <label class="toggle-group">
           <input type="checkbox" id="ocrToggle" checked>
-          <span>Bật nhận dạng ký tự OCR (RapidOCR / Tesseract)</span>
+          <span>Bật nhận dạng ký tự OCR</span>
         </label>
         <button class="btn" id="submitBtn" disabled>
           <div class="spinner" id="btnSpinner"></div>
@@ -822,10 +822,13 @@
         resultSection.style.display = 'flex';
         resultSection.scrollIntoView({ behavior: 'smooth' });
 
-        // 3. Render Kết quả OCR
+        // 3. Render Kết quả OCR từ máy chủ Python
         if (ocrToggle.checked) {
           ocrBox.style.display = 'flex';
+          const ocrTitle = ocrBox.querySelector('h3');
+          ocrTitle.innerText = '🖹 Kết quả Nhận Dạng Văn Bản (OCR Trích Xuất)';
           const ocrLinesData = data.ocr_clean || [];
+
           if (ocrLinesData.length > 0) {
             ocrLines.innerHTML = ocrLinesData.map(line => `
               <div class="ocr-line">
@@ -834,7 +837,7 @@
               </div>
             `).join('');
           } else {
-            ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">Không tìm thấy ký tự văn bản hoặc máy chủ chưa cài thư viện OCR.</div>';
+            ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 12px;">Không phát hiện ký tự văn bản rõ ràng trong ảnh này.</div>';
           }
         } else {
           ocrBox.style.display = 'none';
