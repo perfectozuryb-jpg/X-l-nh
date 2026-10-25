@@ -642,10 +642,11 @@
         <div class="steps-container" id="stepsContainer">
           <!-- 9 Step cards injected here dynamically -->
         </div>
-      </div>
     </div>
   </div>
 
+  <!-- Thư viện Tesseract.js chạy OCR bằng WebAssembly trên trình duyệt khi máy chủ Vercel không có OCR engine -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script>
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
@@ -822,7 +823,7 @@
         resultSection.style.display = 'flex';
         resultSection.scrollIntoView({ behavior: 'smooth' });
 
-        // 3. Render Kết quả OCR từ máy chủ Python
+        // 3. Render Kết quả OCR (Ưu tiên kết quả máy chủ, tự động fallback Tesseract.js nếu triển khai trên serverless Vercel)
         if (ocrToggle.checked) {
           ocrBox.style.display = 'flex';
           const ocrTitle = ocrBox.querySelector('h3');
@@ -830,12 +831,42 @@
           const ocrLinesData = data.ocr_clean || [];
 
           if (ocrLinesData.length > 0) {
+            // Máy chủ có sẵn OCR (chạy Local)
             ocrLines.innerHTML = ocrLinesData.map(line => `
               <div class="ocr-line">
                 <span>${line.text}</span>
                 <span class="ocr-conf">${line.confidence}%</span>
               </div>
             `).join('');
+          } else if (window.Tesseract) {
+            // Máy chủ Vercel không có sẵn thư viện OCR -> tự động chạy Tesseract.js (WASM)
+            ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 12px;">⏳ Đang phân tích ký tự văn bản...</div>';
+            try {
+              const worker = await Tesseract.createWorker('eng');
+              const ret = await worker.recognize(data.clean_image);
+              await worker.terminate();
+
+              const clientLines = (ret.data.lines || [])
+                .filter(l => l.text.trim().length > 0)
+                .map(l => ({
+                  text: l.text.trim(),
+                  confidence: Math.round(l.confidence)
+                }));
+
+              if (clientLines.length > 0) {
+                ocrLines.innerHTML = clientLines.map(line => `
+                  <div class="ocr-line">
+                    <span>${line.text}</span>
+                    <span class="ocr-conf">${line.confidence}%</span>
+                  </div>
+                `).join('');
+              } else {
+                ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 12px;">Không phát hiện ký tự văn bản rõ ràng trong ảnh này.</div>';
+              }
+            } catch (ocrErr) {
+              console.warn('OCR Fallback error:', ocrErr);
+              ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 12px;">Không phát hiện ký tự văn bản rõ ràng trong ảnh này.</div>';
+            }
           } else {
             ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 12px;">Không phát hiện ký tự văn bản rõ ràng trong ảnh này.</div>';
           }

@@ -16,6 +16,7 @@ test_cleaned/
 scratch/
 steps_output/
 .ipynb_checkpoints/
+*.ipynb
 
 # Generated output images
 output_*.png
