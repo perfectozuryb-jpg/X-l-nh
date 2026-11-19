@@ -933,16 +933,28 @@
             } else if (window.Tesseract) {
               ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 12px;">Đang phân tích ký tự văn bản...</div>';
               try {
+                const ocrTargetImg = data.ocr_image || data.clean_image;
                 const worker = await Tesseract.createWorker('eng');
-                const ret = await worker.recognize(data.clean_image);
-                await worker.terminate();
 
-                const clientLines = (ret.data.lines || [])
+                // Pass 1: Chế độ tài liệu tiêu chuẩn (PSM 3)
+                const ret1 = await worker.recognize(ocrTargetImg);
+                const parseLines = (ret, minConf) => (ret.data.lines || [])
                   .map(l => ({
                     text: l.text.trim(),
                     confidence: Math.round(l.confidence)
                   }))
-                  .filter(l => l.text.length >= 2 && l.confidence >= 45);
+                  .filter(l => l.text.length >= 2 && l.confidence >= minConf && /[A-Za-z0-9]{2,}/.test(l.text));
+
+                let clientLines = parseLines(ret1, 45);
+
+                // Pass 2: Nếu ảnh là giấy nhàu / ít dòng (ví dụ 1 câu đơn lẻ), tự động thử thêm PSM 11 (Sparse Text)
+                if (clientLines.length === 0) {
+                  await worker.setParameters({ tessedit_pageseg_mode: '11' });
+                  const ret2 = await worker.recognize(ocrTargetImg);
+                  clientLines = parseLines(ret2, 30).filter(l => /[A-Za-z]{3,}/.test(l.text));
+                }
+
+                await worker.terminate();
 
                 if (clientLines.length > 0) {
                   ocrLines.innerHTML = clientLines.map(line => `

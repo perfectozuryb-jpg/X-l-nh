@@ -507,6 +507,74 @@ def process_pipeline_median(gray):
     }
     return clean, steps_data, metrics
 
+def build_ocr_ready_image(gray, clean):
+    """
+    Tạo bản ảnh tối ưu riêng cho OCR (đặc biệt cho Tesseract.js trên Vercel khi ảnh là giấy nhàu/nghiêng trên nền tối):
+    - Chỉ kích hoạt khi phát hiện tờ giấy nằm trên nền tối (như bàn gỗ).
+    - Cô lập trang giấy, tách bóng nếp gấp xám mềm và xoay thẳng dòng chữ bằng Horizontal Projection Profile.
+    - Không làm thay đổi ảnh kết quả clean_image hiển thị cho người dùng.
+    """
+    if not HAS_CV2:
+        return None
+
+    h, w = gray.shape[:2]
+    k_bg = min(31, max(13, int(min(h, w) * 0.05) | 1))
+    bg = cv2.medianBlur(gray, k_bg)
+    bg_p90 = float(np.percentile(bg, 90))
+    bg_p15 = float(np.percentile(bg, 15))
+    if not (bg_p90 > 130.0 and bg_p15 < bg_p90 * 0.42):
+        return None
+
+    ocr_img = clean.copy()
+    bg_th, _ = cv2.threshold(bg, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    cand = (bg >= int(bg_th * 0.85)).astype(np.uint8)
+    cand = cv2.morphologyEx(cand, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15)))
+    num_p, lbl_p, stats_p, _ = cv2.connectedComponentsWithStats(cand, 8)
+    if num_p > 1:
+        largest = 1 + int(np.argmax(stats_p[1:, cv2.CC_STAT_AREA]))
+        if stats_p[largest, cv2.CC_STAT_AREA] > 0.20 * h * w:
+            pm = (lbl_p == largest).astype(np.uint8)
+            cnts, _ = cv2.findContours(pm, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            cv2.drawContours(pm, cnts, -1, 1, thickness=cv2.FILLED)
+            pm = cv2.erode(pm, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11)), iterations=1)
+            ocr_img[pm == 0] = 255
+
+    # Loại bỏ bóng nếp gấp xám mềm, chỉ giữ lại lõi nét chữ đen đậm cho Tesseract.js
+    dark_core = (ocr_img < 75).astype(np.uint8)
+    if int(np.sum(dark_core)) > 80:
+        se = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+        halo = cv2.dilate(dark_core, se, iterations=1)
+        ocr_img[(ocr_img >= 95) & (halo == 0)] = 255
+        mask_ink = (ocr_img < 220).astype(np.uint8)
+        n_c, l_c, st_c, _ = cv2.connectedComponentsWithStats(mask_ink, 8)
+        for i in range(1, n_c):
+            area = st_c[i, cv2.CC_STAT_AREA]
+            x, y, bw, bh_b = st_c[i, cv2.CC_STAT_LEFT], st_c[i, cv2.CC_STAT_TOP], st_c[i, cv2.CC_STAT_WIDTH], st_c[i, cv2.CC_STAT_HEIGHT]
+            rm = (l_c[y:y+bh_b, x:x+bw] == i)
+            vals = ocr_img[y:y+bh_b, x:x+bw][rm]
+            if area <= 6 or float(np.percentile(vals, 15)) > 90 or float(np.mean(vals)) > 145:
+                ocr_img[y:y+bh_b, x:x+bw][rm] = 255
+
+    # Auto-Deskew bằng Horizontal Projection Profile (-25 đến +25 độ)
+    small_w = min(w, 320)
+    scale = small_w / float(w)
+    small_bin = (cv2.resize(ocr_img, (small_w, max(1, int(h * scale)))) < 150).astype(np.float32)
+    sh, sw = small_bin.shape
+    best_ang, best_score = 0.0, -1.0
+    for ang in range(-25, 26, 1):
+        M = cv2.getRotationMatrix2D((sw / 2.0, sh / 2.0), ang, 1.0)
+        rot = cv2.warpAffine(small_bin, M, (sw, sh), flags=cv2.INTER_NEAREST, borderValue=0)
+        score = float(np.var(np.sum(rot, axis=1)))
+        if score > best_score:
+            best_score = score
+            best_ang = float(ang)
+
+    if abs(best_ang) >= 2.0:
+        M = cv2.getRotationMatrix2D((w / 2.0, h / 2.0), best_ang, 1.0)
+        ocr_img = cv2.warpAffine(ocr_img, M, (w, h), flags=cv2.INTER_CUBIC, borderValue=255)
+
+    return ocr_img
+
 @app.get("/")
 def root():
     if os.path.exists("public/index.html"):
@@ -573,8 +641,12 @@ async def denoise(
         else:
             clean, steps, metrics = process_pipeline_gaussian(gray)
 
-        # Chạy OCR tiếng Anh
-        ocr_clean_lines = run_ocr_text(clean) if run_ocr else []
+        # Chuẩn bị bản ảnh tối ưu OCR (tự tách bàn tối + xoay thẳng nếu là ảnh chụp tờ giấy nhàu nghiêng)
+        ocr_ready = build_ocr_ready_image(gray, clean) if run_ocr else None
+        ocr_target = ocr_ready if ocr_ready is not None else clean
+
+        # Chạy OCR tiếng Anh (nếu server có RapidOCR/pytesseract)
+        ocr_clean_lines = run_ocr_text(ocr_target) if run_ocr else []
         ocr_raw_lines = run_ocr_text(gray) if run_ocr else []
 
         raw_b64 = encode_img_b64(gray)
@@ -587,6 +659,7 @@ async def denoise(
             "height": int(clean.shape[0]),
             "raw_image": f"data:image/png;base64,{raw_b64}",
             "clean_image": f"data:image/png;base64,{clean_b64}",
+            "ocr_image": encode_step_preview_b64(ocr_ready, max_width=1200, quality=92) if ocr_ready is not None else None,
             "metrics": metrics,
             "steps": steps,
             "ocr_raw": ocr_raw_lines,
