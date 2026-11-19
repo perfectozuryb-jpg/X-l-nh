@@ -12,3 +12,7 @@ scratch/
 temp_*.txt
 *.pyc
 __pycache__/
+CNN/
+*.onnx
+*.pth
+*.h5

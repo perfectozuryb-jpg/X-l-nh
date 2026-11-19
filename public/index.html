@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Denoising Dirty Documents – Nhóm 3 (XLAS)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
   <style>
     :root {
       --bg: #090d16;
@@ -113,7 +116,8 @@
       gap: 12px;
     }
 
-    .drop-zone:hover, .drop-zone.dragover {
+    .drop-zone:hover,
+    .drop-zone.dragover {
       border-color: var(--primary);
       background: rgba(59, 130, 246, 0.08);
       box-shadow: 0 0 25px var(--primary-glow);
@@ -180,6 +184,31 @@
       height: 18px;
       accent-color: var(--primary);
       cursor: pointer;
+    }
+
+    .control-options {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .control-select {
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .control-select:hover,
+    .control-select:focus {
+      border-color: var(--primary);
     }
 
     .btn {
@@ -510,10 +539,13 @@
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <header>
@@ -522,8 +554,10 @@
       </div>
       <h1>Làm Sạch Tài Liệu & Triệt Tiêu Vết Ố</h1>
       <p class="subtitle">
-        Quy trình Xử lý ảnh số toàn diện <strong>9 bước</strong>: Ước lượng trường nền Gauss thích ứng, Background Division, 
-        Phân ngưỡng tự động Otsu, Tương phản Gamma 1.4, Hình thái học Black-Hat (5×5), Triệt tiêu quầng ố, Clamping nền trắng 100% 
+        Quy trình Xử lý ảnh số toàn diện <strong>9 bước</strong>: Ước lượng trường nền Gauss thích ứng, Background
+        Division,
+        Phân ngưỡng tự động Otsu, Tương phản Gamma 1.4, Hình thái học Black-Hat (5×5), Triệt tiêu quầng ố, Clamping nền
+        trắng 100%
         và Lọc hạt bụi liên thông. Nét chữ đậm đen sắc nét, tối ưu hóa cho OCR.
       </p>
     </header>
@@ -532,25 +566,35 @@
     <div class="glass-card">
       <div class="drop-zone" id="dropZone">
         <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.5V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.5V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
         </svg>
         <div>
-          <h3 style="font-size: 1.15rem; margin-bottom: 4px;">Kéo & Thả ảnh tài liệu vào đây hoặc Click để chọn file</h3>
-          <p style="color: var(--text-muted); font-size: 0.9rem;">Hỗ trợ định dạng PNG, JPG, JPEG (Ảnh tài liệu bị ố cà phê, nếp gấp, chữ mờ)</p>
+          <h3 style="font-size: 1.15rem; margin-bottom: 4px;">Kéo & Thả ảnh tài liệu vào đây hoặc Click để chọn file
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Hỗ trợ định dạng PNG, JPG, JPEG (Ảnh tài liệu bị ố cà
+            phê, nếp gấp, chữ mờ)</p>
         </div>
         <input type="file" id="fileInput" class="file-input" accept="image/*">
       </div>
 
       <div class="sample-presets">
         <span style="font-size: 0.85rem; color: var(--text-muted);">Thử nhanh ảnh mẫu có sẵn:</span>
-        <button class="sample-btn" onclick="loadSamplePreset('samples/sample_dirty.png')">📄 Ảnh mẫu Kaggle (Vết ố loang đậm & nếp gấp)</button>
+        <button class="sample-btn" onclick="loadSamplePreset('samples/sample_dirty.png')">Ảnh mẫu Kaggle (Vết ố loang
+          đậm & nếp gấp)</button>
       </div>
 
       <div class="controls">
-        <label class="toggle-group">
-          <input type="checkbox" id="ocrToggle" checked>
-          <span>Bật nhận dạng ký tự OCR</span>
-        </label>
+        <div class="control-options">
+          <label class="toggle-group">
+            <input type="checkbox" id="ocrToggle" checked>
+            <span>Bật nhận dạng ký tự OCR (Tiếng Anh)</span>
+          </label>
+          <select id="pipelineVersion" class="control-select" title="Chọn phiên bản quy trình 9 bước">
+            <option value="gaussian" selected>Bản 1: Gaussian Blur</option>
+            <option value="median">Bản 2: Median Filter</option>
+          </select>
+        </div>
         <button class="btn" id="submitBtn" disabled>
           <div class="spinner" id="btnSpinner"></div>
           <span id="btnText">Tiến hành làm sạch</span>
@@ -563,10 +607,10 @@
       <!-- Tabs Switcher -->
       <div class="tabs-container">
         <button class="tab-btn active" id="tabCompareBtn" onclick="switchTab('compare')">
-          <span>⚡</span> So Sánh Đối Chiếu & Chỉ Số
+          Đối Chiếu Trước / Sau (DIP)
         </button>
         <button class="tab-btn" id="tabStepsBtn" onclick="switchTab('steps')">
-          <span>🔬</span> Chi Tiết Toàn Bộ 9 Bước Thuật Toán (DIP Process)
+          Chi Tiết Toàn Bộ 9 Bước Thuật Toán (DIP Process)
         </button>
       </div>
 
@@ -574,8 +618,9 @@
       <div class="tab-pane" id="comparePane">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <h2 style="font-size: 1.35rem; font-weight: 700;">Kết Quả Xử Lý Đối Chiếu</h2>
-          <a id="downloadLink" class="btn" style="background: var(--accent); text-decoration: none;" download="cleaned_document.png">
-            📥 Tải ảnh sạch về máy
+          <a id="downloadLink" class="btn" style="background: var(--accent); text-decoration: none;"
+            download="cleaned_document.png">
+            Tải ảnh sạch về máy
           </a>
         </div>
 
@@ -592,21 +637,21 @@
             <span class="metric-desc" id="valPaper">Ranh giới giấy: --</span>
           </div>
           <div class="metric-card">
-            <span class="metric-title">Hạt Nhân Gauss Nền</span>
+            <span class="metric-title" id="titleBgKernel">Hạt Nhân Gauss Nền</span>
             <span class="metric-value" id="valGauss">--</span>
             <span class="metric-desc" id="valSigma">Độ mờ σ: --</span>
           </div>
           <div class="metric-card">
             <span class="metric-title">Thành Phần Liên Thông</span>
             <span class="metric-value" id="valCC">--</span>
-            <span class="metric-desc">Hàn gắn các nét chữ đứt gãy</span>
+            <span class="metric-desc">Lọc hạt bụi & chấm bẩn sót lại</span>
           </div>
         </div>
 
         <div class="comparison-grid">
           <div class="img-box">
             <div class="img-box-header">
-              <span>📷 Ảnh Gốc (Dirty Input)</span>
+              <span>Ảnh Gốc (Dirty Input)</span>
               <span id="rawInfo" style="color: var(--text-muted);"></span>
             </div>
             <img id="rawImage" src="" alt="Ảnh gốc">
@@ -614,7 +659,7 @@
 
           <div class="img-box">
             <div class="img-box-header">
-              <span>✨ Ảnh Đã Phục Hồi (Otsu + Black-Hat)</span>
+              <span id="cleanTitle">Ảnh Đã Phục Hồi (Otsu + Black-Hat)</span>
               <span style="color: var(--accent);">Nền trắng 100%, chữ đậm liền mạch</span>
             </div>
             <img id="cleanImage" src="" alt="Ảnh sau xử lý">
@@ -623,14 +668,14 @@
 
         <!-- OCR Result -->
         <div class="ocr-box" id="ocrBox">
-          <h3 style="font-size: 1.1rem; font-weight: 600;">🖹 Kết quả Nhận Dạng Văn Bản (OCR Trích Xuất)</h3>
+          <h3 style="font-size: 1.1rem; font-weight: 600;">Kết quả Nhận Dạng Văn Bản (OCR Trích Xuất)</h3>
           <div class="ocr-lines" id="ocrLines">
             <!-- OCR items injected here -->
           </div>
         </div>
       </div>
 
-      <!-- Tab 2: Chi tiết 9 bước thuật toán -->
+      <!-- Tab 3: Chi tiết 9 bước thuật toán -->
       <div class="tab-pane" id="stepsPane" style="display: none;">
         <div>
           <h2 style="font-size: 1.35rem; font-weight: 700;">Phân Rã Toàn Diện 9 Bước Thuật Toán Xử Lý Ảnh Số (DIP)</h2>
@@ -642,156 +687,204 @@
         <div class="steps-container" id="stepsContainer">
           <!-- 9 Step cards injected here dynamically -->
         </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Thư viện Tesseract.js chạy OCR bằng WebAssembly trên trình duyệt khi máy chủ Vercel không có OCR engine -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-  <script>
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-    const submitBtn = document.getElementById('submitBtn');
-    const btnSpinner = document.getElementById('btnSpinner');
-    const btnText = document.getElementById('btnText');
-    const ocrToggle = document.getElementById('ocrToggle');
-    const resultSection = document.getElementById('resultSection');
-    const rawImage = document.getElementById('rawImage');
-    const cleanImage = document.getElementById('cleanImage');
-    const rawInfo = document.getElementById('rawInfo');
-    const downloadLink = document.getElementById('downloadLink');
-    const ocrBox = document.getElementById('ocrBox');
-    const ocrLines = document.getElementById('ocrLines');
+    <!-- Thư viện Tesseract.js chạy OCR bằng WebAssembly trên trình duyệt khi máy chủ Vercel không có OCR engine -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script>
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('fileInput');
+      const submitBtn = document.getElementById('submitBtn');
+      const btnSpinner = document.getElementById('btnSpinner');
+      const btnText = document.getElementById('btnText');
+      const ocrToggle = document.getElementById('ocrToggle');
+      const resultSection = document.getElementById('resultSection');
+      const rawImage = document.getElementById('rawImage');
+      const cleanImage = document.getElementById('cleanImage');
+      const rawInfo = document.getElementById('rawInfo');
+      const downloadLink = document.getElementById('downloadLink');
+      const ocrBox = document.getElementById('ocrBox');
+      const ocrLines = document.getElementById('ocrLines');
 
-    const tabCompareBtn = document.getElementById('tabCompareBtn');
-    const tabStepsBtn = document.getElementById('tabStepsBtn');
-    const comparePane = document.getElementById('comparePane');
-    const stepsPane = document.getElementById('stepsPane');
-    const stepsContainer = document.getElementById('stepsContainer');
+      const tabCompareBtn = document.getElementById('tabCompareBtn');
+      const tabStepsBtn = document.getElementById('tabStepsBtn');
+      const comparePane = document.getElementById('comparePane');
+      const stepsPane = document.getElementById('stepsPane');
+      const stepsContainer = document.getElementById('stepsContainer');
 
-    const valWhiteRatio = document.getElementById('valWhiteRatio');
-    const valOtsu = document.getElementById('valOtsu');
-    const valPaper = document.getElementById('valPaper');
-    const valGauss = document.getElementById('valGauss');
-    const valSigma = document.getElementById('valSigma');
-    const valCC = document.getElementById('valCC');
+      const valWhiteRatio = document.getElementById('valWhiteRatio');
+      const valOtsu = document.getElementById('valOtsu');
+      const valPaper = document.getElementById('valPaper');
+      const valGauss = document.getElementById('valGauss');
+      const valSigma = document.getElementById('valSigma');
+      const valCC = document.getElementById('valCC');
 
-    let currentFile = null;
+      let currentFile = null;
 
-    function switchTab(tab) {
-      if (tab === 'compare') {
-        tabCompareBtn.classList.add('active');
-        tabStepsBtn.classList.remove('active');
-        comparePane.style.display = 'flex';
-        stepsPane.style.display = 'none';
-      } else {
-        tabStepsBtn.classList.add('active');
-        tabCompareBtn.classList.remove('active');
-        stepsPane.style.display = 'flex';
-        comparePane.style.display = 'none';
+      function switchTab(tab) {
+        tabCompareBtn.classList.toggle('active', tab === 'compare');
+        tabStepsBtn.classList.toggle('active', tab === 'steps');
+
+        comparePane.style.display = tab === 'compare' ? 'flex' : 'none';
+        stepsPane.style.display = tab === 'steps' ? 'flex' : 'none';
       }
-    }
 
-    dropZone.addEventListener('click', () => fileInput.click());
+      dropZone.addEventListener('click', () => fileInput.click());
 
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
-    });
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+      });
 
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
 
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      if (e.dataTransfer.files.length) {
-        handleFileSelect(e.dataTransfer.files[0]);
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+          handleFileSelect(e.dataTransfer.files[0]);
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+          handleFileSelect(e.target.files[0]);
+        }
+      });
+
+      function handleFileSelect(file) {
+        if (!file.type.startsWith('image/')) {
+          alert('Vui lòng chọn file hình ảnh hợp lệ (PNG, JPG, JPEG)!');
+          return;
+        }
+        currentFile = file;
+        submitBtn.disabled = false;
+        btnText.innerText = `Làm sạch: ${file.name}`;
       }
-    });
 
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length) {
-        handleFileSelect(e.target.files[0]);
+      async function loadSamplePreset(url) {
+        try {
+          const resp = await fetch(url);
+          if (!resp.ok) throw new Error('Không thể tải ảnh mẫu: ' + url);
+          const blob = await resp.blob();
+          const file = new File([blob], "sample_dirty.png", { type: "image/png" });
+          handleFileSelect(file);
+          submitBtn.click();
+        } catch (e) {
+          alert("Lỗi tải ảnh mẫu: " + e.message);
+        }
       }
-    });
 
-    function handleFileSelect(file) {
-      if (!file.type.startsWith('image/')) {
-        alert('Vui lòng chọn file hình ảnh hợp lệ (PNG, JPG, JPEG)!');
-        return;
-      }
-      currentFile = file;
-      submitBtn.disabled = false;
-      btnText.innerText = `Làm sạch: ${file.name}`;
-    }
+      submitBtn.addEventListener('click', async () => {
+        if (!currentFile) return;
 
-    async function loadSamplePreset(url) {
-      try {
-        const resp = await fetch(url);
-        if (!resp.ok) throw new Error('Không thể tải ảnh mẫu: ' + url);
-        const blob = await resp.blob();
-        const file = new File([blob], "sample_dirty.png", { type: "image/png" });
-        handleFileSelect(file);
-        submitBtn.click();
-      } catch (e) {
-        alert("Lỗi tải ảnh mẫu: " + e.message);
-      }
-    }
+        submitBtn.disabled = true;
+        btnSpinner.style.display = 'block';
+        btnText.innerText = 'Đang chạy toàn diện 9 bước DIP...';
 
-    submitBtn.addEventListener('click', async () => {
-      if (!currentFile) return;
-
-      submitBtn.disabled = true;
-      btnSpinner.style.display = 'block';
-      btnText.innerText = 'Đang chạy toàn diện 9 bước DIP...';
-
-      const formData = new FormData();
-      formData.append('file', currentFile);
-      formData.append('run_ocr', ocrToggle.checked);
-
-      try {
-        let res = await fetch('/api/denoise', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (res.status === 404) {
-          res = await fetch('/denoise', {
-            method: 'POST',
-            body: formData
+        async function compressImageForUpload(file, maxDim = 1400, quality = 0.88) {
+          return new Promise((resolve) => {
+            const img = new Image();
+            const objectUrl = URL.createObjectURL(file);
+            img.onload = () => {
+              URL.revokeObjectURL(objectUrl);
+              let { width, height } = img;
+              const needResize = Math.max(width, height) > maxDim;
+              const needCompress = file.size > 1.2 * 1024 * 1024;
+              if (!needResize && !needCompress) {
+                resolve(file);
+                return;
+              }
+              if (needResize) {
+                const scale = maxDim / Math.max(width, height);
+                width = Math.max(1, Math.round(width * scale));
+                height = Math.max(1, Math.round(height * scale));
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              canvas.toBlob((blob) => {
+                if (!blob) {
+                  resolve(file);
+                  return;
+                }
+                const baseName = (file.name || 'document').replace(/\.[^.]+$/, '');
+                resolve(new File([blob], `${baseName}.jpg`, { type: 'image/jpeg' }));
+              }, 'image/jpeg', quality);
+            };
+            img.onerror = () => {
+              URL.revokeObjectURL(objectUrl);
+              resolve(file);
+            };
+            img.src = objectUrl;
           });
         }
 
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(`Máy chủ trả về mã ${res.status}: ${errText.slice(0, 150)}`);
-        }
+        const uploadFile = await compressImageForUpload(currentFile);
+        const versionEl = document.getElementById('pipelineVersion');
+        const selectedVersion = versionEl ? versionEl.value : 'gaussian';
 
-        const data = await res.json();
-        if (!data.success) {
-          alert('Lỗi: ' + (data.error || 'Xử lý thất bại'));
-          return;
-        }
+        const formData = new FormData();
+        formData.append('file', uploadFile);
+        formData.append('run_ocr', ocrToggle.checked);
+        formData.append('version', selectedVersion);
 
-        // 1. Cập nhật Tab Đối Chiếu
-        rawImage.src = data.raw_image;
-        cleanImage.src = data.clean_image;
-        rawInfo.innerText = `${data.width} × ${data.height} px`;
-        downloadLink.href = data.clean_image;
-        downloadLink.download = `clean_${data.filename}`;
+        try {
+          let res = await fetch('/api/denoise', {
+            method: 'POST',
+            body: formData
+          });
 
-        // Cập nhật Metrics
-        if (data.metrics) {
-          valWhiteRatio.innerText = `${data.metrics.white_ratio}%`;
-          valOtsu.innerText = `T = ${data.metrics.th_otsu}`;
-          valPaper.innerText = `Ranh giới giấy: ${data.metrics.th_paper}`;
-          valGauss.innerText = `${data.metrics.k_gauss}×${data.metrics.k_gauss}`;
-          valSigma.innerText = `Độ mờ σ = ${data.metrics.sigma_gauss}`;
-          valCC.innerText = `${data.metrics.connected_components_raw} ➔ ${data.metrics.connected_components_clean}`;
-        }
+          if (res.status === 404) {
+            res = await fetch('/denoise', {
+              method: 'POST',
+              body: formData
+            });
+          }
 
-        // 2. Render Đầy Đủ 9 Bước Thuật Toán
-        if (data.steps && data.steps.length > 0) {
-          stepsContainer.innerHTML = data.steps.map(step => `
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`Máy chủ trả về mã ${res.status}: ${errText.slice(0, 150)}`);
+          }
+
+          const data = await res.json();
+          if (!data.success) {
+            alert('Lỗi: ' + (data.error || 'Xử lý thất bại'));
+            return;
+          }
+
+          // 1. Cập nhật Tab Đối Chiếu
+          rawImage.src = data.raw_image;
+          cleanImage.src = data.clean_image;
+          rawInfo.innerText = `${data.width} × ${data.height} px`;
+          downloadLink.href = data.clean_image;
+          downloadLink.download = `clean_${data.filename}`;
+
+          // Cập nhật Metrics
+          if (data.metrics) {
+            valWhiteRatio.innerText = `${data.metrics.white_ratio}%`;
+            valOtsu.innerText = `T = ${data.metrics.th_otsu}`;
+            valPaper.innerText = `Ranh giới giấy: ${data.metrics.th_paper}`;
+            const titleBgKernel = document.getElementById('titleBgKernel');
+            const cleanTitle = document.getElementById('cleanTitle');
+            if (data.metrics.version === 'median') {
+              if (titleBgKernel) titleBgKernel.innerText = 'Hạt Nhân Median Nền';
+              if (cleanTitle) cleanTitle.innerText = 'Ảnh Đã Phục Hồi (Bản 2: Median + Black-Hat)';
+            } else {
+              if (titleBgKernel) titleBgKernel.innerText = 'Hạt Nhân Gauss Nền';
+              if (cleanTitle) cleanTitle.innerText = 'Ảnh Đã Phục Hồi (Bản 1: Gaussian + Black-Hat)';
+            }
+            valGauss.innerText = `${data.metrics.k_gauss}×${data.metrics.k_gauss}`;
+            valSigma.innerText = data.metrics.bg_label || `Độ mờ σ = ${data.metrics.sigma_gauss}`;
+            valCC.innerText = `${data.metrics.connected_components_raw} -> ${data.metrics.connected_components_clean}`;
+          }
+
+          // 2. Render Đầy Đủ 9 Bước Thuật Toán
+          if (data.steps && data.steps.length > 0) {
+            stepsContainer.innerHTML = data.steps.map(step => `
             <div class="step-card">
               <div class="step-header">
                 <span class="step-badge">BƯỚC ${step.step_number} / ${data.steps.length}</span>
@@ -807,81 +900,80 @@
                     <code>${step.algorithm}</code>
                   </div>
                   <div class="info-block how">
-                    <div class="info-label">📌 Cách thực hiện:</div>
+                    <div class="info-label">Cách thực hiện:</div>
                     <p>${step.how}</p>
                   </div>
                   <div class="info-block why">
-                    <div class="info-label">💡 Tại sao làm như vậy? (Cơ sở khoa học DIP):</div>
+                    <div class="info-label">Tại sao làm như vậy? (Cơ sở khoa học DIP):</div>
                     <p>${step.why}</p>
                   </div>
                 </div>
               </div>
             </div>
           `).join('');
-        }
+          }
 
-        resultSection.style.display = 'flex';
-        resultSection.scrollIntoView({ behavior: 'smooth' });
+          resultSection.style.display = 'flex';
+          resultSection.scrollIntoView({ behavior: 'smooth' });
 
-        // 3. Render Kết quả OCR (Ưu tiên kết quả máy chủ, tự động fallback Tesseract.js nếu triển khai trên serverless Vercel)
-        if (ocrToggle.checked) {
-          ocrBox.style.display = 'flex';
-          const ocrTitle = ocrBox.querySelector('h3');
-          ocrTitle.innerText = '🖹 Kết quả Nhận Dạng Văn Bản (OCR Trích Xuất)';
-          const ocrLinesData = data.ocr_clean || [];
+          // 3. Render Kết quả OCR (Ưu tiên RapidOCR máy chủ, tự động fallback Tesseract.js 'eng' trên Vercel)
+          if (ocrToggle.checked) {
+            ocrBox.style.display = 'flex';
+            const ocrTitle = ocrBox.querySelector('h3');
+            ocrTitle.innerText = 'Kết quả Nhận Dạng Văn Bản (OCR Trích Xuất)';
+            const ocrLinesData = data.ocr_clean || [];
 
-          if (ocrLinesData.length > 0) {
-            // Máy chủ có sẵn OCR (chạy Local)
-            ocrLines.innerHTML = ocrLinesData.map(line => `
+            if (ocrLinesData.length > 0) {
+              ocrLines.innerHTML = ocrLinesData.map(line => `
               <div class="ocr-line">
                 <span>${line.text}</span>
                 <span class="ocr-conf">${line.confidence}%</span>
               </div>
             `).join('');
-          } else if (window.Tesseract) {
-            // Máy chủ Vercel không có sẵn thư viện OCR -> tự động chạy Tesseract.js (WASM)
-            ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 12px;">⏳ Đang phân tích ký tự văn bản...</div>';
-            try {
-              const worker = await Tesseract.createWorker('eng');
-              const ret = await worker.recognize(data.clean_image);
-              await worker.terminate();
+            } else if (window.Tesseract) {
+              ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 12px;">Đang phân tích ký tự văn bản...</div>';
+              try {
+                const worker = await Tesseract.createWorker('eng');
+                const ret = await worker.recognize(data.clean_image);
+                await worker.terminate();
 
-              const clientLines = (ret.data.lines || [])
-                .filter(l => l.text.trim().length > 0)
-                .map(l => ({
-                  text: l.text.trim(),
-                  confidence: Math.round(l.confidence)
-                }));
+                const clientLines = (ret.data.lines || [])
+                  .map(l => ({
+                    text: l.text.trim(),
+                    confidence: Math.round(l.confidence)
+                  }))
+                  .filter(l => l.text.length >= 2 && l.confidence >= 45);
 
-              if (clientLines.length > 0) {
-                ocrLines.innerHTML = clientLines.map(line => `
+                if (clientLines.length > 0) {
+                  ocrLines.innerHTML = clientLines.map(line => `
                   <div class="ocr-line">
                     <span>${line.text}</span>
                     <span class="ocr-conf">${line.confidence}%</span>
                   </div>
                 `).join('');
-              } else {
+                } else {
+                  ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 12px;">Không phát hiện ký tự văn bản rõ ràng trong ảnh này.</div>';
+                }
+              } catch (ocrErr) {
+                console.warn('OCR Fallback error:', ocrErr);
                 ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 12px;">Không phát hiện ký tự văn bản rõ ràng trong ảnh này.</div>';
               }
-            } catch (ocrErr) {
-              console.warn('OCR Fallback error:', ocrErr);
+            } else {
               ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 12px;">Không phát hiện ký tự văn bản rõ ràng trong ảnh này.</div>';
             }
           } else {
-            ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 12px;">Không phát hiện ký tự văn bản rõ ràng trong ảnh này.</div>';
+            ocrBox.style.display = 'none';
           }
-        } else {
-          ocrBox.style.display = 'none';
-        }
 
-      } catch (err) {
-        alert('Lỗi kết nối tới máy chủ: ' + err.message);
-      } finally {
-        submitBtn.disabled = false;
-        btnSpinner.style.display = 'none';
-        btnText.innerText = 'Làm sạch ảnh khác';
-      }
-    });
-  </script>
+        } catch (err) {
+          alert('Lỗi kết nối tới máy chủ: ' + err.message);
+        } finally {
+          submitBtn.disabled = false;
+          btnSpinner.style.display = 'none';
+          btnText.innerText = 'Làm sạch ảnh khác';
+        }
+      });
+    </script>
 </body>
+
 </html>

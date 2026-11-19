@@ -18,6 +18,12 @@ steps_output/
 .ipynb_checkpoints/
 *.ipynb
 
+# CNN and Deep Learning models (kept strictly local)
+CNN/
+*.onnx
+*.pth
+*.h5
+
 # Generated output images
 output_*.png
 stroke_restoration_proof.png
