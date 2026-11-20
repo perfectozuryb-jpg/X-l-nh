@@ -74,10 +74,14 @@ def encode_step_preview_b64(arr, max_width=800, quality=82):
 
 def run_ocr_text(img_gray):
     """Bóc tách văn bản tiếng Anh qua RapidOCR (fallback pytesseract nếu có)."""
+    ocr_input = img_gray
+    if HAS_CV2 and min(img_gray.shape[:2]) < 600:
+        ocr_input = cv2.resize(img_gray, None, fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
+
     engine = get_ocr()
     if engine is not None:
         try:
-            res, _ = engine(img_gray)
+            res, _ = engine(ocr_input)
             if res:
                 lines = []
                 for bbox, text, score in res:

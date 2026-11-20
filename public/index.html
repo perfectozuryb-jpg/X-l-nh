@@ -933,8 +933,31 @@
             } else if (window.Tesseract) {
               ocrLines.innerHTML = '<div style="color: var(--text-muted); padding: 12px;">Đang phân tích ký tự văn bản...</div>';
               try {
-                const ocrTargetImg = data.ocr_image || data.clean_image;
+                const rawTargetImg = data.ocr_image || data.clean_image;
+
+                // Phóng to 2x nếu ảnh nhỏ (< 1100px) để Tesseract.js tách khoảng trắng & nét nghiêng chính xác hơn
+                const ocrTargetImg = await new Promise((resolve) => {
+                  const im = new Image();
+                  im.onload = () => {
+                    if (im.width >= 1100) {
+                      resolve(rawTargetImg);
+                      return;
+                    }
+                    const c = document.createElement('canvas');
+                    c.width = im.width * 2;
+                    c.height = im.height * 2;
+                    const cx = c.getContext('2d');
+                    cx.imageSmoothingEnabled = true;
+                    cx.imageSmoothingQuality = 'high';
+                    cx.drawImage(im, 0, 0, c.width, c.height);
+                    resolve(c.toDataURL('image/png'));
+                  };
+                  im.onerror = () => resolve(rawTargetImg);
+                  im.src = rawTargetImg;
+                });
+
                 const worker = await Tesseract.createWorker('eng');
+                await worker.setParameters({ user_defined_dpi: '300' });
 
                 // Pass 1: Chế độ tài liệu tiêu chuẩn (PSM 3)
                 const ret1 = await worker.recognize(ocrTargetImg);
